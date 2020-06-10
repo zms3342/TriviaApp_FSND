@@ -28,6 +28,17 @@ def create_app(test_config=None):
     return response  
 
 
+  def pagination(request, selected, n):
+    items_per_page = n
+    page = request.args.get('page',1,type=int)
+    start_page = (page-1)*items_per_page
+    end_page = start_page+items_per_page
+
+    items = [item.format() for item in selected]
+    current = items[start:end]
+
+    return current
+
   '''
   @TODO: 
   Create an endpoint to handle GET requests 
