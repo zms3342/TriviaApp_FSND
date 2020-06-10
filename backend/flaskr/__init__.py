@@ -12,6 +12,7 @@ def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
   setup_db(app)
+  db = SQLAlchemy()
   
   '''
   @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
@@ -21,9 +22,9 @@ def create_app(test_config=None):
   @TODO: Use the after_request decorator to set Access-Control-Allow
   '''
   @app.after_request
-  def access_control(response):
-    response.headers.add('Access-Control-Allow-Headers', *)
-    response.headers.add('Access-Control-Allow-Origin', *)
+  def ater_request(response):
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization,true')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     return response  
 
 
@@ -32,8 +33,20 @@ def create_app(test_config=None):
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
-  @app.route
+  @app.route('/categories')
+  def retrive_categories():
+    categories = Category.query.all()
+    data={}
+    for i in categories: 
+      data[categories.id]=categories.type
 
+    if len(data)==0: 
+      abort(404, "WHOOPS BRUH.... YOU LOST")
+
+    return jsonify({
+            'success': True,
+            'categories': data
+        })
 
   '''
   @TODO: 
