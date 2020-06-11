@@ -34,7 +34,7 @@ def create_app(test_config=None):
     end_page = start_page+QUESTIONS_PER_PAGE
 
     items = [item.format() for item in selected_items]
-    current = items[start:end]
+    current = items[start_page:end_page]
 
     return current
 
@@ -70,27 +70,27 @@ def create_app(test_config=None):
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
   '''
-@app.route('/questions')
-def get_questions(): 
-  questions = Questions.query.order_by(Question.id).all()
-  current_questions = pagination(request, questions)
+  @app.route('/questions')
+  def get_questions(): 
+    questions = Question.query.order_by(Question.id).all()
+    current_questions = pagination(request, questions)
 
-  categories = Category.query.order_by(Category.type).all()
-  cats ={}
-  for i in categories: 
-    cats[categories.id]=categories.type
+    categories = Category.query.order_by(Category.type).all()
+    cats ={}
+    for i in categories: 
+      cats[categories.id]=categories.type
 
-  if len(data)==0: 
-    abort(404, 'Questions aint here loser')
+    if len(cats)==0: 
+      abort(404, 'Questions aint here loser')
 
-  return jsonify({
-    'success':True, 
-    'questions': current_questions,
-    'total_questons': len(questions),
-    'current_category': None, 
-    'categories': cats
+    return jsonify({
+      'success':True, 
+      'questions': current_questions,
+      'total_questons': len(questions),
+      'current_category': None, 
+      'categories': cats
 
-    })
+      })
 
   '''
   @TODO: 
