@@ -13,6 +13,17 @@ def create_app(test_config=None):
   app = Flask(__name__)
   setup_db(app)
   db = SQLAlchemy()
+
+
+  def pagination(request, selected_items):
+    page = request.args.get('page',1,type=int)
+    start_page = (page-1)*QUESTIONS_PER_PAGE 
+    end_page = start_page+QUESTIONS_PER_PAGE
+
+    items = [item.format() for item in selected_items]
+    current = items[start_page:end_page]
+
+    return current
   
   '''
   @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
@@ -28,16 +39,6 @@ def create_app(test_config=None):
     return response  
 
 
-  def pagination(request, selected_items):
-    page = request.args.get('page',1,type=int)
-    start_page = (page-1)*QUESTIONS_PER_PAGE 
-    end_page = start_page+QUESTIONS_PER_PAGE
-
-    items = [item.format() for item in selected_items]
-    current = items[start_page:end_page]
-
-    return current
-
   '''
   @TODO: 
   Create an endpoint to handle GET requests 
@@ -48,7 +49,7 @@ def create_app(test_config=None):
     categories = Category.query.all()
     data={}
     for i in categories: 
-      data[categories.id]=categories.type
+      data[i.id]=i.type
 
     if len(data)==0: 
       abort(404, "WHOOPS BRUH.... YOU LOST")
@@ -77,8 +78,8 @@ def create_app(test_config=None):
 
     categories = Category.query.order_by(Category.type).all()
     cats ={}
-    for i in categories: 
-      cats[categories.id]=categories.type
+    for category in categories: 
+      cats[category.id]=category.type
 
     if len(cats)==0: 
       abort(404, 'Questions aint here loser')
@@ -100,6 +101,18 @@ def create_app(test_config=None):
   This removal will persist in the database and when you refresh the page. 
   '''
 
+  @app.route("/questions/<question_id>", methods=['DELETE'])
+  def delete_question(question_id):
+    try: 
+      question = Question.query.get(question_id)
+      question.delete()
+      return jsonify({
+      'success':True,
+      'deleted':question_id
+      })
+    except: 
+      abort(404)
+
   '''
   @TODO: 
   Create an endpoint to POST a new question, 
@@ -110,6 +123,23 @@ def create_app(test_config=None):
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
+
+  @app.route("/questions", methods=['POST'])
+  def add_question():
+    question = request.get_json().get("question")
+    answer = request.get_json().get("answer")
+    difficulty = request.get_json().get("difficulty")
+    Category = request.get_json().get("category")
+    try: 
+      new = Question(question=question, answer=answer, difficulty=difficulty, category=Category)
+      new.insert()
+      return jsonify({
+      'success':True,
+      'added' : new.id 
+      })
+    except: 
+      abort(422)
+
 
   '''
   @TODO: 
