@@ -160,8 +160,23 @@ def create_app(test_config=None):
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
+  @app.route('/categories/<int:id>/questions')
+  def get_questions_by_category(id):
+    '''
+  Handles GET requests for getting questions based on category.
+  '''
+    try:
+        questions = Question.query.filter(
+            Question.category == str(id)).all()
 
-
+        return jsonify({
+            'success': True,
+            'questions': [question.format() for question in questions],
+            'total_questions': len(questions),
+            'current_category': id
+        })
+    except:
+        abort(404)
   '''
   @TODO: 
   Create a POST endpoint to get questions to play the quiz. 
@@ -173,6 +188,35 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
+
+  @app.route('/quizzes',  methods=['POST'])
+  def post_to_quiz(): 
+    body = request.get_json()
+    category = body.get('category')
+    prev_questions = body.get('previous_questions')
+
+    if category is None and previous_question is None:
+      abort(420)
+
+    #if all is selected query every question else query based on the id 
+    if category['id']==0: 
+      questions = Question.query.all()
+    else: 
+      questions = Question.query.filter_by(category = category['id']).all()
+
+    #randomize questions and load the quic
+    def return_random_questions()
+      quiz_questions = questions[random.ranrange(0,len(questions),1)]
+      return quiz_questions
+
+    def check_if_question_used(question)
+      used = False
+      for i in previous_question: 
+        if i ==question.id: 
+          used = False
+      return used 
+
+
 
   '''
   @TODO: 
