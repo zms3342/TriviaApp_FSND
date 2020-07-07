@@ -24,6 +24,13 @@ def create_app(test_config=None):
     current = items[start_page:end_page]
 
     return current
+
+  def search(searchterm): 
+    searched_items = Question.query.filter(
+      Question.question.ilike(f"%{searchterm}%")).all()
+    if searched_items is None: 
+      abort(404, "No items matching the searchterm")
+    return searched_items
   
   '''
   @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
@@ -126,19 +133,35 @@ def create_app(test_config=None):
 
   @app.route("/questions", methods=['POST'])
   def add_question():
-    question = request.get_json().get("question")
-    answer = request.get_json().get("answer")
-    difficulty = request.get_json().get("difficulty")
-    Category = request.get_json().get("category")
-    try: 
-      new = Question(question=question, answer=answer, difficulty=difficulty, category=Category)
-      new.insert()
+    
+    #search question functionality
+    if request.get_json().get("searchTerm"):
+      searched_items = search(request.get_json().get("searchTerm"))
+      paginate_questions = pagination(request, searched_items)
+
       return jsonify({
-      'success':True,
-      'added' : new.id 
-      })
-    except: 
-      abort(422)
+                'success': True,
+                'questions': paginate_questions,
+                'total_questions': len(Question.query.all())
+            })
+
+
+    else:
+      question = request.get_json().get("question")
+      answer = request.get_json().get("answer")
+      difficulty = request.get_json().get("difficulty")
+      Category = request.get_json().get("category")
+      try: 
+        new = Question(question=question, answer=answer, difficulty=difficulty, category=Category)
+        new.insert()
+        return jsonify({
+          'success':True,
+          'added' : new.id 
+            })
+      except: 
+        abort(422)
+
+
 
 
   '''
@@ -151,7 +174,6 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
-
   '''
   @TODO: 
   Create a GET endpoint to get questions based on category. 
@@ -189,41 +211,53 @@ def create_app(test_config=None):
   and shown whether they were correct or not. 
   '''
 
-  @app.route('/quizzes',  methods=['POST'])
-  def post_to_quiz(): 
+  @app.route('/quizzes', methods=['POST'])
+  def get_guesses():
     body = request.get_json()
-    category = body.get('category')
-    prev_questions = body.get('previous_questions')
 
-    if category is None and previous_question is None:
-      abort(420)
+    if body == None or 'quiz_category' not in body.keys():
+      return abort(422)
 
-    #if all is selected query every question else query based on the id 
-    if category['id']==0: 
-      questions = Question.query.all()
-    else: 
-      questions = Question.query.filter_by(category = category['id']).all()
+    previous_questions = []
+    if 'previous_questions' in body.keys():
+      previous_questions = body['previous_questions']
 
-    #randomize questions and load the quic
-    def return_random_questions()
-      quiz_questions = questions[random.ranrange(0,len(questions),1)]
-      return quiz_questions
+    question = Question.query.filter(
+      Question.category == body['quiz_category']['id'], Question.id.notin_(previous_questions)).first()
 
-    def check_if_question_used(question)
-      used = False
-      for i in previous_question: 
-        if i ==question.id: 
-          used = False
-      return used 
-
-
+    return jsonify({
+        "success": True,
+        "question": question.format() if question != None else None
+    })
 
   '''
   @TODO: 
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
-  
+  @app.errorhandler(404)
+  def not_found(error):
+    return jsonify({
+        "success": False,
+        "error": 404,
+        "message": "resource not found"
+    }), 404
+
+  @app.errorhandler(422)
+  def unprocessable(error):
+    return jsonify({
+        "success": False,
+        "error": 422,
+        "message": "unprocessable"
+    }), 422
+
+  @app.errorhandler(400)
+  def bad_request(error):
+    return jsonify({
+        "success": False,
+        "error": 400,
+        "message": "bad request"
+    }), 400
   return app
 
     
