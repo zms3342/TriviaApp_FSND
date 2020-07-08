@@ -27,7 +27,7 @@ def create_app(test_config=None):
 
   def search(searchterm): 
     searched_items = Question.query.filter(
-      Question.question.ilike(f"%{searchterm}%")).all()
+      Question.question.ilike("%{}%".format(searchterm))).all()
     if searched_items is None: 
       abort(404, "No items matching the searchterm")
     return searched_items
@@ -59,7 +59,7 @@ def create_app(test_config=None):
       data[i.id]=i.type
 
     if len(data)==0: 
-      abort(404, "WHOOPS BRUH.... YOU LOST")
+      abort(404, "No Categories Found :(")
 
     return jsonify({
             'success': True,
@@ -89,7 +89,7 @@ def create_app(test_config=None):
       cats[category.id]=category.type
 
     if len(cats)==0: 
-      abort(404, 'Questions aint here loser')
+      abort(404, 'No Questions Found :(')
 
     return jsonify({
       'success':True, 
