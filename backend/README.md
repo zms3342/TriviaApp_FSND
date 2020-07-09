@@ -85,7 +85,7 @@ DELETE ...
 - Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
 
 -ex. curl <uri>/categories
-	{
+	`{
 		"categories":{
 			'1' : "Science",
 			'2' : "Art",
@@ -94,7 +94,7 @@ DELETE ...
 			'5' : "Entertainment",
 			'6' : "Sports"}
 		}
-	}
+	}`
 
 ## GET '/questions'
 
@@ -133,10 +133,10 @@ DELETE ...
 
 - ex: curl -X DELETE <url>/questions/<question_id>
 
-	{
+	`{
   "deleted": "4", 
   "success": true
-	}
+	}`
 
 
 ## POST '/questions'
@@ -148,14 +148,14 @@ DELETE ...
 
 - Case 1 ex: curl -X POST <url>/questions -H "Content-Type: application/json" -d '{"question": "A nanny that flies to work with an umbrella", "answer": "who is marry poppins?", "difficulty":"3", "category":"1"}'
 
-	{
+	`{
   "added": 26, 
   "success": true
-	}
+	}`
 
 - Case 2 ex: curl -X POST <url>/questions -H "Content-Type: application/json" -d '{"searchTerm":"2"}'
 
-	{
+	`{
 	  "questions": [
 	    {
 	      "answer": "4", 
@@ -174,7 +174,7 @@ DELETE ...
 	  ], 
 	  "success": true, 
 	  "total_questions": 21
-	}
+	}`
 
 ##POST '/quizzes'
 - Returns a random quiz question given a category parameter
@@ -183,7 +183,7 @@ DELETE ...
 
 - ex: curl -X POST <url>/quizzes -H "Content-Type: application/json" -d '{"previous_questions": [5,6], "quiz_category":{"type":"Math", "id":"2"}}'
 
-	{
+	`{
 	  "question": {
 	    "answer": "H2", 
 	    "category": "2", 
@@ -192,7 +192,7 @@ DELETE ...
 	    "question": "what H+H"
 	  }, 
 	  "success": true
-	}
+	}`
 
 
 ## Testing
