@@ -34,6 +34,8 @@ class TriviaTestCase(unittest.TestCase):
     Write at least one test for each test for successful operation and for expected errors.
     """
 
+    #Tests for successes
+
     def test_question_pagination(self):
         response = self.client().get('/questions')
         data = json.loads(response.data)
@@ -121,9 +123,42 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertIsNotNone(data['question'])
 
+    #tests for expected errors
+
+    def test_pagination_failure(self):
+        '''requests page that doesnt exist'''
+
+        response = self.client().get('/questions?page=1000')
+        data = json.loads(response.data)
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(data['success'], False)
+
+    def test_post_question_failure(self): 
+        '''try and add a question with no data'''
+
+        response = self.client().post('/questions', json={})
+        data = json.loads(response.data)
+
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(data['success'], False)
+
+    def test_get_questions_by_category_failure(self):
+        '''input a category that doesnt exist'''
+
+        response = self.client().get('/categories/50/quesitons')
+        data = json.loads(response.data)
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(data['success'], False)
 
 
+    def test_quiz_failure(self):
+        response = self.client().post('/quizzes', json={})
+        data = json.loads(response.data)
 
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(data['success'], False)
 
 
 
